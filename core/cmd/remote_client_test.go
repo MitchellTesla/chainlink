@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/smartcontractkit/chainlink/core/services/eth"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/jinzhu/gorm"
 	"github.com/pelletier/go-toml"
@@ -31,7 +33,6 @@ func TestClient_ListETHKeys(t *testing.T) {
 	t.Parallel()
 
 	ethClient := new(mocks.Client)
-
 	app, cleanup := cltest.NewApplicationWithKey(t, ethClient)
 	defer cleanup()
 	verify := cltest.MockApplicationEthCalls(t, app, ethClient)
@@ -53,10 +54,10 @@ func TestClient_ListETHKeys(t *testing.T) {
 func TestClient_IndexJobSpecs(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -77,10 +78,10 @@ func TestClient_IndexJobSpecs(t *testing.T) {
 func TestClient_ShowJobRun_Exists(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -103,10 +104,10 @@ func TestClient_ShowJobRun_Exists(t *testing.T) {
 func TestClient_ShowJobRun_NotFound(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -123,10 +124,10 @@ func TestClient_ShowJobRun_NotFound(t *testing.T) {
 func TestClient_IndexJobRuns(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -155,10 +156,10 @@ func TestClient_IndexJobRuns(t *testing.T) {
 func TestClient_ShowJobSpec_Exists(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -179,10 +180,10 @@ func TestClient_ShowJobSpec_Exists(t *testing.T) {
 func TestClient_ShowJobSpec_NotFound(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -211,7 +212,11 @@ func TestClient_CreateExternalInitiator(t *testing.T) {
 	for _, tt := range tests {
 		test := tt
 		t.Run(test.name, func(t *testing.T) {
-			app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+			rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+			defer assertMocksCalled()
+			app, cleanup := cltest.NewApplicationWithKey(t,
+				eth.NewClientWith(rpcClient, gethClient),
+			)
 			defer cleanup()
 			require.NoError(t, app.Start())
 
@@ -252,7 +257,11 @@ func TestClient_CreateExternalInitiator_Errors(t *testing.T) {
 	for _, tt := range tests {
 		test := tt
 		t.Run(test.name, func(t *testing.T) {
-			app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+			rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+			defer assertMocksCalled()
+			app, cleanup := cltest.NewApplicationWithKey(t,
+				eth.NewClientWith(rpcClient, gethClient),
+			)
 			defer cleanup()
 			require.NoError(t, app.Start())
 
@@ -274,10 +283,10 @@ func TestClient_CreateExternalInitiator_Errors(t *testing.T) {
 func TestClient_DestroyExternalInitiator(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -302,10 +311,10 @@ func TestClient_DestroyExternalInitiator(t *testing.T) {
 func TestClient_DestroyExternalInitiator_NotFound(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -322,10 +331,10 @@ func TestClient_DestroyExternalInitiator_NotFound(t *testing.T) {
 func TestClient_CreateJobSpec(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -361,10 +370,10 @@ func TestClient_CreateJobSpec(t *testing.T) {
 func TestClient_ArchiveJobSpec(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -387,10 +396,10 @@ func TestClient_ArchiveJobSpec(t *testing.T) {
 func TestClient_CreateJobSpec_JSONAPIErrors(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -409,10 +418,10 @@ func TestClient_CreateJobSpec_JSONAPIErrors(t *testing.T) {
 func TestClient_CreateJobRun(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -462,10 +471,10 @@ func TestClient_CreateJobRun(t *testing.T) {
 func TestClient_CreateBridge(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -504,10 +513,10 @@ func TestClient_CreateBridge(t *testing.T) {
 func TestClient_IndexBridges(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -539,10 +548,10 @@ func TestClient_IndexBridges(t *testing.T) {
 func TestClient_ShowBridge(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.StartAndConnect())
@@ -567,10 +576,10 @@ func TestClient_ShowBridge(t *testing.T) {
 func TestClient_RemoveBridge(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -596,10 +605,10 @@ func TestClient_RemoveBridge(t *testing.T) {
 func TestClient_RemoteLogin(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -638,12 +647,14 @@ func TestClient_RemoteLogin(t *testing.T) {
 func setupWithdrawalsApplication(t *testing.T, config *cltest.TestConfig) (*cltest.TestApplication, func()) {
 	oca := common.HexToAddress("0xDEADB3333333F")
 	config.Set("OPERATOR_CONTRACT_ADDRESS", &oca)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
 	app, cleanup := cltest.NewApplicationWithConfigAndKey(t, config,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
-	return app, cleanup
+	return app, func() {
+		assertMocksCalled()
+		cleanup()
+	}
 }
 
 func TestClient_SendEther_From_BPTXM(t *testing.T) {
@@ -679,10 +690,10 @@ func TestClient_SendEther_From_BPTXM(t *testing.T) {
 func TestClient_ChangePassword(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -720,7 +731,11 @@ func TestClient_ChangePassword(t *testing.T) {
 func TestClient_IndexTransactions(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplicationWithKey(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 
@@ -757,7 +772,11 @@ func TestClient_IndexTransactions(t *testing.T) {
 func TestClient_ShowTransaction(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplicationWithKey(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 
@@ -781,7 +800,11 @@ func TestClient_ShowTransaction(t *testing.T) {
 func TestClient_IndexTxAttempts(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplicationWithKey(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 
@@ -874,7 +897,11 @@ func TestClient_SetMinimumGasPrice(t *testing.T) {
 func TestClient_GetConfiguration(t *testing.T) {
 	t.Parallel()
 
-	app, cleanup := cltest.NewApplicationWithKey(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplicationWithKey(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 
@@ -899,10 +926,10 @@ func TestClient_GetConfiguration(t *testing.T) {
 func TestClient_CancelJobRun(t *testing.T) {
 	t.Parallel()
 
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -928,10 +955,10 @@ func TestClient_CancelJobRun(t *testing.T) {
 
 func TestClient_P2P_CreateKey(t *testing.T) {
 	t.Parallel()
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -959,10 +986,10 @@ func TestClient_P2P_CreateKey(t *testing.T) {
 
 func TestClient_P2P_DeleteKey(t *testing.T) {
 	t.Parallel()
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -1004,10 +1031,10 @@ func TestClient_P2P_DeleteKey(t *testing.T) {
 
 func TestClient_CreateOCRKeyBundle(t *testing.T) {
 	t.Parallel()
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -1035,10 +1062,10 @@ func TestClient_CreateOCRKeyBundle(t *testing.T) {
 
 func TestClient_DeleteOCRKeyBundle(t *testing.T) {
 	t.Parallel()
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
 	app, cleanup := cltest.NewApplication(t,
-		cltest.LenientEthMock,
-		cltest.EthMockRegisterChainID,
-		cltest.EthMockRegisterGetBalance,
+		eth.NewClientWith(rpcClient, gethClient),
 	)
 	defer cleanup()
 	require.NoError(t, app.Start())
@@ -1074,7 +1101,11 @@ func TestClient_DeleteOCRKeyBundle(t *testing.T) {
 
 func TestClient_RunOCRJob_HappyPath(t *testing.T) {
 	t.Parallel()
-	app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplication(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 	client, _ := app.NewClientAndRenderer()
@@ -1100,7 +1131,11 @@ func TestClient_RunOCRJob_HappyPath(t *testing.T) {
 
 func TestClient_RunOCRJob_MissingJobID(t *testing.T) {
 	t.Parallel()
-	app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplication(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 	client, _ := app.NewClientAndRenderer()
@@ -1114,7 +1149,11 @@ func TestClient_RunOCRJob_MissingJobID(t *testing.T) {
 
 func TestClient_RunOCRJob_JobNotFound(t *testing.T) {
 	t.Parallel()
-	app, cleanup := cltest.NewApplication(t, cltest.LenientEthMock)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplication(t,
+		eth.NewClientWith(rpcClient, gethClient),
+	)
 	defer cleanup()
 	require.NoError(t, app.Start())
 	client, _ := app.NewClientAndRenderer()

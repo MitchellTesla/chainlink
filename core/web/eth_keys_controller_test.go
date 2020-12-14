@@ -1,20 +1,19 @@
 package web_test
 
 import (
-	"fmt"
 	"math/big"
 	"net/http"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-
 	"github.com/smartcontractkit/chainlink/core/assets"
 	"github.com/smartcontractkit/chainlink/core/internal/cltest"
 	"github.com/smartcontractkit/chainlink/core/internal/mocks"
+	"github.com/smartcontractkit/chainlink/core/services/eth"
 	"github.com/smartcontractkit/chainlink/core/store/models"
 	"github.com/smartcontractkit/chainlink/core/store/presenters"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestETHKeysController_Index_Success(t *testing.T) {
@@ -60,20 +59,15 @@ func TestETHKeysController_Index_Success(t *testing.T) {
 	assert.Equal(t, expectedAccounts[1].Address.Hex(), second.Address)
 	assert.Equal(t, "0.000000000000000001", second.EthBalance.String())
 	assert.Equal(t, "0.000000000000000001", second.LinkBalance.String())
-	fmt.Println("3333")
 }
 
 func TestETHKeysController_Index_NoAccounts(t *testing.T) {
 	t.Parallel()
 
-	ethClient := new(mocks.Client)
-
-	app, cleanup := cltest.NewApplication(t, ethClient)
+	rpcClient, gethClient, _, assertMocksCalled := cltest.NewEthMocksWithStartupAssertions(t)
+	defer assertMocksCalled()
+	app, cleanup := cltest.NewApplication(t, eth.NewClientWith(rpcClient, gethClient))
 	defer cleanup()
-
-	verify := cltest.MockApplicationEthCalls(t, app, ethClient)
-	defer verify()
-
 	require.NoError(t, app.Start())
 
 	err := app.Store.ORM.DB.Delete(models.Key{}).Error
