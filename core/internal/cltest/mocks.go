@@ -27,7 +27,6 @@ import (
 // MockSubscription a mock subscription
 type MockSubscription struct {
 	mut          sync.Mutex
-	name         string
 	channel      interface{}
 	unsubscribed bool
 	Errors       chan error
@@ -61,16 +60,6 @@ func (mes *MockSubscription) Unsubscribe() {
 		logger.Fatal(fmt.Sprintf("Unable to close MockSubscription channel of type %T", mes.channel))
 	}
 	close(mes.Errors)
-}
-
-// MockResponse a mock response
-type MockResponse struct {
-	methodName string
-	context    string
-	response   interface{}
-	errMsg     string
-	hasError   bool
-	callback   func(interface{}, ...interface{}) error
 }
 
 // InstantClock create InstantClock
