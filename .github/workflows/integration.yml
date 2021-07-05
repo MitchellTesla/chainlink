@@ -40,7 +40,7 @@ jobs:
           outputs: type=docker,dest=/tmp/chainlink.tar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: chainlink
           path: /tmp/chainlink.tar
@@ -103,7 +103,7 @@ jobs:
         working-directory: ./tools/docker
       - name: Store logs artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: logs
           path: ./tools/docker/logs
