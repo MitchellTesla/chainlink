@@ -12,7 +12,7 @@ require (
 	github.com/coreos/go-semver v0.3.0
 	github.com/danielkov/gin-helmet v0.0.0-20171108135313-1387e224435e
 	github.com/ethereum-optimism/go-optimistic-ethereum-utils v0.1.0
-	github.com/ethereum/go-ethereum v1.10.3
+	github.com/ethereum/go-ethereum v1.10.4
 	github.com/fatih/color v1.12.0
 	github.com/fxamacker/cbor/v2 v2.3.0
 	github.com/gin-contrib/cors v1.3.1
@@ -70,7 +70,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
 	golang.org/x/text v0.3.6
-	golang.org/x/tools v0.1.2
+	golang.org/x/tools v0.1.4
 	gonum.org/v1/gonum v0.9.1
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/guregu/null.v4 v4.0.0
